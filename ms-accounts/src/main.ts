@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
+  console.log({ natsUrl: process.env.NATS_URL });
+
   const app = await NestFactory.create(AppModule);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.NATS,
