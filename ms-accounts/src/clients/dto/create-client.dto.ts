@@ -1,10 +1,6 @@
 import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 
-export enum IdType {
-  DNI = 'DNI',
-  PASSPORT = 'PASSPORT',
-  RUC = 'RUC',
-}
+import { IdType } from '@shared/types/id-type.enum';
 
 export class CreateClientDto {
   @IsString()

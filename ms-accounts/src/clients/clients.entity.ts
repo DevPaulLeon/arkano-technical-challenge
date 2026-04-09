@@ -9,6 +9,8 @@ import {
 
 import { Account } from '../accounts/accounts.entity';
 
+import { IdType } from '@shared/types/id-type.enum';
+
 @Entity()
 export class Client {
   @PrimaryGeneratedColumn('uuid')
@@ -20,8 +22,8 @@ export class Client {
   @Column()
   lastname: string;
 
-  @Column()
-  idType: string;
+  @Column({ type: 'enum', enum: IdType })
+  idType: IdType;
 
   @Column({ unique: true })
   idNumber: string;
