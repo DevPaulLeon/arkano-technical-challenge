@@ -29,7 +29,9 @@ services:
       - '3307:3307'
 
   ms-accounts:
-    build: ./ms-accounts
+    build:
+      context: . # raíz del monorepo
+      dockerfile: ./ms-accounts/Dockerfile
     env_file: ./ms-accounts/.env
     depends_on:
       - nats
@@ -38,7 +40,9 @@ services:
       - '3001:3000'
 
   ms-transactions:
-    build: ./ms-transactions
+    build:
+      context: .
+      dockerfile: ./ms-transactions/Dockerfile
     env_file: ./ms-transactions/.env
     depends_on:
       - nats
@@ -48,7 +52,9 @@ services:
       - '3002:3000'
 
   ms-llm:
-    build: ./ms-llm
+    build:
+      context: .
+      dockerfile: ./ms-llm/Dockerfile
     env_file: ./ms-llm/.env
     depends_on:
       - nats

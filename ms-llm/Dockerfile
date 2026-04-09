@@ -4,13 +4,14 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-COPY package*.json ./
-COPY pnpm-lock.yaml ./
+COPY ms-llm/package*.json ./
+COPY ms-llm/pnpm-lock.yaml ./
 
 RUN pnpm install
 
-COPY . .
+COPY ms-llm/ .
+COPY shared/ ./shared
 
 RUN pnpm run build
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
