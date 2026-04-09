@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import {
   ClientsModule as NatsClientsModule,
   Transport,
@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsController } from './clients.controller';
 import { ClientsService } from './clients.service';
 import { Client } from './clients.entity';
+import { AccountsModule } from 'src/accounts/accounts.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Client } from './clients.entity';
         },
       },
     ]),
+    forwardRef(() => AccountsModule),
   ],
   controllers: [ClientsController],
   providers: [ClientsService],

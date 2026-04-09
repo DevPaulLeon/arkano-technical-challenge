@@ -3,6 +3,7 @@ import {
   Inject,
   ConflictException,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,6 +11,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Client } from './clients.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { ClientCreatedEvent } from '@shared/events/client-created.event';
+import { AccountsService } from 'src/accounts/accounts.service';
+import { Account } from 'src/accounts/accounts.entity';
 
 @Injectable()
 export class ClientsService {
@@ -18,6 +21,8 @@ export class ClientsService {
     private readonly clientRepository: Repository<Client>,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @Inject(forwardRef(() => AccountsService))
+    private readonly accountsService: AccountsService,
   ) {}
 
   async create(createClientDto: CreateClientDto): Promise<Client> {
@@ -53,5 +58,9 @@ export class ClientsService {
     }
 
     return client;
+  }
+
+  async findAccounts(id: string): Promise<Account[]> {
+    return this.accountsService.findAccountsByClientId(id);
   }
 }

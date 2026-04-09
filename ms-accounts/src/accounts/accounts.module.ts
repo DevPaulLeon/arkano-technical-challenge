@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import {
   ClientsModule as NatsClientsModule,
   Transport,
@@ -12,7 +12,6 @@ import { ClientsModule } from 'src/clients/clients.module';
 
 @Module({
   imports: [
-    ClientsModule,
     TypeOrmModule.forFeature([Account]),
     NatsClientsModule.register([
       {
@@ -23,8 +22,10 @@ import { ClientsModule } from 'src/clients/clients.module';
         },
       },
     ]),
+    forwardRef(() => ClientsModule),
   ],
   controllers: [AccountsController],
   providers: [AccountsService],
+  exports: [AccountsService],
 })
 export class AccountsModule {}

@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   Logger,
+  forwardRef,
 } from '@nestjs/common';
 import { Account } from './accounts.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,6 +23,7 @@ export class AccountsService {
     private readonly accountRepository: Repository<Account>,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
+    @Inject(forwardRef(() => ClientsService))
     private readonly clientsService: ClientsService,
   ) {}
 
@@ -68,5 +70,9 @@ export class AccountsService {
     }
 
     return client;
+  }
+
+  async findAccountsByClientId(clientId: string): Promise<Account[]> {
+    return this.accountRepository.find({ where: { clientId } });
   }
 }
