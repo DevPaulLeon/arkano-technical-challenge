@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  nats:
+    image: nats:latest
+    ports:
+      - '4222:4222'
+    command: '-js'
+
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+
+  bd-accounts:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: accounts_db
+    ports:
+      - '3306:3306'
+
+  bd-transactions:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: transactions_db
+    ports:
+      - '3307:3307'
+
+  ms-accounts:
+    build: ./ms-accounts
+    env_file: ./ms-accounts/.env
+    depends_on:
+      - nats
+      - bd-accounts
+    ports:
+      - '3001:3000'
+
+  ms-transactions:
+    build: ./ms-transactions
+    env_file: ./ms-transactions/.env
+    depends_on:
+      - nats
+      - redis
+      - bd-transactions
+    ports:
+      - '3002:3000'
+
+  ms-llm:
+    build: ./ms-llm
+    env_file: ./ms-llm/.env
+    depends_on:
+      - nats
+    ports:
+      - '3003:3000'
