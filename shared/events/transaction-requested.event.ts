@@ -1,10 +1,10 @@
 import { TransactionType } from '../types/transaction-type.enum';
 
-export interface TransactionRequestedEvent {
-  eventId: string;
-  version: string;
-  occurredAt: string;
-  payload: {
+export class TransactionRequestedEvent {
+  eventId!: string;
+  version!: string;
+  occurredAt!: string;
+  payload!: {
     transactionId: string;
     type: TransactionType;
     sourceAccountId: string;

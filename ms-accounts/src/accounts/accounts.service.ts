@@ -13,6 +13,9 @@ import { ClientProxy } from '@nestjs/microservices';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { AccountCreatedEvent } from '@shared/events/account-created.event';
 import { ClientsService } from 'src/clients/clients.service';
+import { TransactionCompletedEvent } from '@shared/events/transaction-completed.event';
+import { BalanceUpdatedEvent } from '@shared/events/balance-updated.event';
+import { TransactionType } from '@shared/types/transaction-type.enum';
 
 @Injectable()
 export class AccountsService {
@@ -74,5 +77,83 @@ export class AccountsService {
 
   async findAccountsByClientId(clientId: string): Promise<Account[]> {
     return this.accountRepository.find({ where: { clientId } });
+  }
+
+  async handleTransactionCompleted(event: TransactionCompletedEvent) {
+    const sourceAccount = await this.findOne(event.payload.sourceAccountId);
+
+    if (event.payload.type === TransactionType.DEPOSIT) {
+      sourceAccount.balance =
+        Number(sourceAccount.balance) + event.payload.amount;
+    } else if (
+      event.payload.type === TransactionType.TRANSFER ||
+      event.payload.type === TransactionType.WITHDRAWAL
+    ) {
+      sourceAccount.balance =
+        Number(sourceAccount.balance) - event.payload.amount;
+    }
+
+    try {
+      await this.accountRepository.save(sourceAccount);
+    } catch (error) {
+      this.logger.error(
+        `Error al actualizar el saldo de la cuenta origen ${sourceAccount.id}`,
+        error,
+      );
+      // TODO: Patron Saga
+      // En producción implementar compensating transaction
+      // Evento DebitFailed para revertir el saldo de sourceAccount
+      throw error;
+    }
+
+    const updateType =
+      event.payload.type === TransactionType.DEPOSIT ? 'INCREASE' : 'DECREASE';
+
+    this.natsClient.emit<any, BalanceUpdatedEvent>('BalanceUpdated', {
+      eventId: crypto.randomUUID(),
+      version: '1.0',
+      occurredAt: new Date().toISOString(),
+      payload: {
+        accountId: sourceAccount.id,
+        updateType,
+        amountAffected: event.payload.amount,
+        newBalance: sourceAccount.balance,
+      },
+    });
+
+    if (
+      event.payload.targetAccountId &&
+      event.payload.type === TransactionType.TRANSFER
+    ) {
+      const targetAccount = await this.findOne(event.payload.targetAccountId);
+
+      targetAccount.balance =
+        Number(targetAccount.balance) + event.payload.amount;
+
+      try {
+        await this.accountRepository.save(targetAccount);
+      } catch (error) {
+        this.logger.error(
+          `Error al actualizar el saldo de la cuenta destino ${targetAccount.id}`,
+          error,
+        );
+        // TODO: Patron Saga
+        // En producción implementar compensating transaction
+        // Evento CreditFailed para revertir el saldo de targetAccount
+        throw error;
+      }
+
+      this.natsClient.emit<any, BalanceUpdatedEvent>('BalanceUpdated', {
+        eventId: crypto.randomUUID(),
+        version: '1.0',
+        occurredAt: new Date().toISOString(),
+        payload: {
+          accountId: targetAccount.id,
+          updateType: 'INCREASE',
+          amountAffected: event.payload.amount,
+          newBalance: targetAccount.balance,
+        },
+      });
+    }
   }
 }
