@@ -9,8 +9,8 @@ export class TransactionCompletedEvent {
     type: TransactionType;
     amount: number;
     sourceAccountId: string;
-    sourceUserName: string;
+    sourceClientName: string;
     targetAccountId: string;
-    targetUserName: string;
+    targetClientName: string;
   };
 }

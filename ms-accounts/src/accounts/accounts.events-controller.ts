@@ -4,7 +4,7 @@ import { AccountsService } from './accounts.service';
 import { TransactionCompletedEvent } from '@shared/events/transaction-completed.event';
 
 @Controller()
-export class EventsController {
+export class AccountsEventsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @EventPattern('TransactionCompleted')

@@ -6,6 +6,7 @@ export class AccountCreatedEvent {
   occurredAt!: string;
   payload!: {
     accountId: string;
+    clientName: string;
     clientId: string;
     initialBalance: number;
     type: AccountType;

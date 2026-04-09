@@ -31,7 +31,9 @@ export class AccountsService {
   ) {}
 
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
-    await this.clientsService.findOne(createAccountDto.clientId);
+    const existingClient = await this.clientsService.findOne(
+      createAccountDto.clientId,
+    );
 
     const existing = await this.accountRepository.findOne({
       where: {
@@ -57,6 +59,7 @@ export class AccountsService {
       payload: {
         accountId: saved.id,
         clientId: saved.clientId,
+        clientName: `${existingClient.name} ${existingClient.lastname}`,
         initialBalance: saved.balance,
         type: saved.type,
         alias: saved.alias,
@@ -84,13 +87,13 @@ export class AccountsService {
 
     if (event.payload.type === TransactionType.DEPOSIT) {
       sourceAccount.balance =
-        Number(sourceAccount.balance) + event.payload.amount;
+        Number(sourceAccount.balance) + Number(event.payload.amount);
     } else if (
       event.payload.type === TransactionType.TRANSFER ||
       event.payload.type === TransactionType.WITHDRAWAL
     ) {
       sourceAccount.balance =
-        Number(sourceAccount.balance) - event.payload.amount;
+        Number(sourceAccount.balance) - Number(event.payload.amount);
     }
 
     try {

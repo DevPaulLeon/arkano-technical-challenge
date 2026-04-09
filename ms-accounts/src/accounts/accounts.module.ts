@@ -8,6 +8,7 @@ import { Account } from './accounts.entity';
 
 import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
+import { AccountsEventsController } from './accounts.events-controller';
 import { ClientsModule } from 'src/clients/clients.module';
 
 @Module({
@@ -24,7 +25,7 @@ import { ClientsModule } from 'src/clients/clients.module';
     ]),
     forwardRef(() => ClientsModule),
   ],
-  controllers: [AccountsController],
+  controllers: [AccountsController, AccountsEventsController],
   providers: [AccountsService],
   exports: [AccountsService],
 })
