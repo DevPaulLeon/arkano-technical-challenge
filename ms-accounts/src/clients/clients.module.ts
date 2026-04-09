@@ -23,5 +23,6 @@ import { Client } from './clients.entity';
   ],
   controllers: [ClientsController],
   providers: [ClientsService],
+  exports: [ClientsService],
 })
 export class ClientsModule {}

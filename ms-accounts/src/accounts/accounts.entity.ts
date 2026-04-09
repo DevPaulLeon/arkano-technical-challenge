@@ -9,6 +9,8 @@ import {
 } from 'typeorm';
 import { Client } from '../clients/clients.entity';
 
+import { AccountType } from '@shared/types/account-type.enum';
+
 @Entity()
 export class Account {
   @PrimaryGeneratedColumn('uuid')
@@ -23,6 +25,12 @@ export class Account {
 
   @Column()
   clientId: string;
+
+  @Column()
+  alias: string;
+
+  @Column({ type: 'enum', enum: AccountType })
+  type: AccountType;
 
   @CreateDateColumn()
   createdAt: Date;
