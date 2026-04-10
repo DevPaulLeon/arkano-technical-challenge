@@ -91,6 +91,28 @@ docker compose up --build
 # ms-llm           → http://localhost:3003
 ```
 
+## Tests
+
+Cada microservicio tiene tests unitarios colocados junto al archivo que prueban (`*.spec.ts`) y un test e2e mínimo en su carpeta `test/`.
+
+Para correr los tests en cualquier microservicio:
+
+```bash
+# Unit tests
+cd ms-accounts   # o ms-transactions, ms-llm
+pnpm test
+
+# E2E tests
+pnpm test:e2e
+
+# Con cobertura
+pnpm test:cov
+```
+
+Los tests unitarios mockean todas las dependencias externas: repositorios de TypeORM, el proxy de NATS, el cliente Redis y la API de fetch. No requieren Docker ni conexión a ningún servicio.
+
+---
+
 ## Variables de entorno
 
 **ms-accounts** (`./ms-accounts/.env`)
@@ -132,6 +154,8 @@ ANTHROPIC_API_KEY=<tu-api-key>
 ## Qué falta y por qué
 
 Hay cosas que no están implementadas. No por descuido, sino porque el scope del challenge no lo justificaba o porque documentar el razonamiento vale más que el código a medias.
+
+**La carpeta `shared/` como contrato de tipos.** En este monorepo, los tres microservicios importan directamente desde `shared/` para compartir definiciones de eventos y enums, funciona dado que viven en el mismo repositorio. En producción, los contratos entre microservicios no se comparten como carpetas: se publican como paquetes versionados en un registry.
 
 **Transacciones compensatorias (SAGA rollback).** Si `ms-accounts` falla al actualizar los saldos después de que `ms-transactions` marcó la transacción como `COMPLETED`, el sistema queda en un estado inconsistente. El código tiene `TODO` marcando exactamente dónde irían las compensaciones. En producción, esto es no negociable.
 
