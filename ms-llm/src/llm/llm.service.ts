@@ -1,5 +1,5 @@
-// llm.service.ts
 import { Injectable, Logger } from '@nestjs/common';
+
 import { TransactionCompletedEvent } from '@shared/events/transaction-completed.event';
 import { TransactionRejectedEvent } from '@shared/events/transaction-rejected.event';
 import { TransactionType } from '@shared/types/transaction-type.enum';
